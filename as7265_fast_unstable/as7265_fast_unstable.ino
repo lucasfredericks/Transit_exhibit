@@ -8,7 +8,7 @@
 
   This example shows how to setup the sensor for max, calibrated read rate.
   Printing floats is the greatest bottleneck so we increase it to 115200.
-  
+
   Feel like supporting open source hardware?
   Buy a board from SparkFun! https://www.sparkfun.com/products/15050
 
@@ -27,18 +27,18 @@ void setup() {
   Serial.begin(115200);
   Serial.println("AS7265x Spectral Triad Example");
 
-  if(sensor.begin() == false)
+  if (sensor.begin() == false)
   {
     Serial.println("Sensor does not appear to be connected. Please check wiring. Freezing...");
-    while(1);
+    while (1);
   }
 
   //Once the sensor is started we can increase the I2C speed
   Wire.setClock(400000);
 
   sensor.setMeasurementMode(AS7265X_MEASUREMENT_MODE_6CHAN_CONTINUOUS); //All 6 channels on all devices
-  
-  sensor.setIntegrationCycles(1); 
+
+  sensor.setIntegrationCycles(1);
   //0 seems to cause the sensors to read very slowly
   //1*2.8ms = 5.6ms per reading
   //But we need two integration cycles so 89Hz is aproximately the fastest read rate
@@ -46,60 +46,58 @@ void setup() {
   sensor.disableIndicator();
 
   //Rather than toggle the LEDs with each measurement, turn on LEDs all the time
-//  sensor.enableBulb(AS7265x_LED_WHITE);
-//  sensor.enableBulb(AS7265x_LED_IR);
-//  sensor.enableBulb(AS7265x_LED_UV);
-//  
+  //  sensor.enableBulb(AS7265x_LED_WHITE);
+  //  sensor.enableBulb(AS7265x_LED_IR);
+  //  sensor.enableBulb(AS7265x_LED_UV);
+  //
   //Serial.println("A,B,C,D,E,F,G,H,R,I,S,J,T,U,V,W,K,L");
 }
 
 void loop() {
   long startTime = millis();
   //We must wait two integration cycles to get all values
-  while(sensor.dataAvailable() == false) {} //Do nothing
+  while (sensor.dataAvailable() == false) {} //Do nothing
   long endTime = millis();
+  String dataString = "";
 
-//  float readRate = 1000.0 / (endTime - startTime);
-//  Serial.print(readRate, 2);
-//  Serial.print("Hz,");
-  Serial.print(sensor.getCalibratedA());
-  Serial.print(",");
-  Serial.print(sensor.getCalibratedB());
-  Serial.print(",");
-  Serial.print(sensor.getCalibratedC());
-  Serial.print(",");
-  Serial.print(sensor.getCalibratedD());
-  Serial.print(",");
-  Serial.print(sensor.getCalibratedE());
-  Serial.print(",");
-  Serial.print(sensor.getCalibratedF());
-  Serial.print(",");
-
-  Serial.print(sensor.getCalibratedG());
-  Serial.print(",");
-  Serial.print(sensor.getCalibratedH());
-  Serial.print(",");
-  Serial.print(sensor.getCalibratedR());
-  Serial.print(",");
-  Serial.print(sensor.getCalibratedI());
-  Serial.print(",");
-  Serial.print(sensor.getCalibratedS());
-  Serial.print(",");
-  Serial.print(sensor.getCalibratedJ());
-  Serial.print(",");
-
-  Serial.print(sensor.getCalibratedT());
-  Serial.print(",");
-  Serial.print(sensor.getCalibratedU());
-  Serial.print(",");
-  Serial.print(sensor.getCalibratedV());
-  Serial.print(",");
-  Serial.print(sensor.getCalibratedW());
-  Serial.print(",");
-  Serial.print(sensor.getCalibratedK());
-  Serial.print(",");
-  Serial.print(sensor.getCalibratedL());
-  //Serial.print(",");
-
-  Serial.println();
+  //  float readRate = 1000.0 / (endTime - startTime);
+  //  Serial.print(readRate, 2);
+  //  Serial.print("Hz,");
+  dataString += String(sensor.getCalibratedA());
+  dataString += ",";
+  dataString += String(sensor.getCalibratedB());
+  dataString += ",";
+  dataString += String(sensor.getCalibratedC());
+  dataString += ",";
+  dataString += String(sensor.getCalibratedD());
+  dataString += ",";
+  dataString += String(sensor.getCalibratedE());
+  dataString += ",";
+  dataString += String(sensor.getCalibratedF());
+  dataString += ",";
+  dataString += String(sensor.getCalibratedG());
+  dataString += ",";
+  dataString += String(sensor.getCalibratedH());
+  dataString += ",";
+  dataString += String(sensor.getCalibratedR());
+  dataString += ",";
+  dataString += String(sensor.getCalibratedI());
+  dataString += ",";
+  dataString += String(sensor.getCalibratedS());
+  dataString += ",";
+  dataString += String(sensor.getCalibratedJ());
+  dataString += ",";
+  dataString += String(sensor.getCalibratedT());
+  dataString += ",";
+  dataString += String(sensor.getCalibratedU());
+  dataString += ",";
+  dataString += String(sensor.getCalibratedV());
+  dataString += ",";
+  dataString += String(sensor.getCalibratedW());
+  dataString += ",";
+  dataString += String(sensor.getCalibratedK());
+  dataString += ",";
+  dataString += String(sensor.getCalibratedL());
+  
+  Serial.println(dataString);
 }
