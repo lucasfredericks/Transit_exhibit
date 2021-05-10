@@ -1,4 +1,7 @@
 import processing.serial.*;
+import processing.video.*;
+
+Capture cam;
 
 PGraphics axes;
 PGraphics plot;
@@ -53,22 +56,44 @@ int[] wavelengths = {
 };
 
 void setup() {
-  size(640, 480);
+  //size(1280, 720);
+  fullScreen();
+  smooth(4);
+  String[] cameras = Capture.list();
+
+  if (cameras == null) {
+    println("Failed to retrieve the list of available cameras, will try the default...");
+  } else if (cameras.length == 0) {
+    println("There are no cameras available for capture.");
+    exit();
+  } else {
+    println("Available cameras:");
+    printArray(cameras);
+
+    // The camera can be initialized directly using an element
+    // from the array returned by list():
+    cam = new Capture(this, 1920, 1080, cameras[0]);
+    // Or, the settings can be defined based on the text in the list
+    //cam = new Capture(this, 640, 480, "Built-in iSight", 30);
+
+    // Start capturing the images from the camera
+    cam.start();
+  }
   //blendMode(ADD);
   dataMax = 250;
   // List all the available serial ports
   printArray(Serial.list());
   // Open the port you are using at the rate you want:
-  myPort = new Serial(this, Serial.list()[0], 115200);
+  myPort = new Serial(this, Serial.list()[1], 115200);
   myPort.clear();
   // Throw out the first reading, in case we started reading 
   // in the middle of a string from the sender.
   myString = myPort.readStringUntil(lf);
   myString = null;
-  axes = createGraphics(640, 480);
-  plot = createGraphics(600, 440);
-  xOff = axes.width - plot.width;
-  yOff = axes.height - plot.height;
+  axes = createGraphics(380, 280);
+  plot = createGraphics(300, 220);
+  xOff = (axes.width - plot.width)/2 + 10;
+  yOff = (axes.height - plot.height);
   barWidth = (plot.width)/18;
   plot.beginDraw();
   plot.blendMode(ADD);
@@ -78,8 +103,18 @@ void setup() {
 }
 
 void draw() {
+  if (frameCount%10 == 0) {
+    println(frameRate);
+  }
+
+  if (cam.available() == true) {
+    cam.read();
+  }
+  noStroke();
+  image(cam, 0, 0);
+
   while (myPort.available() > 0) {
-    background(0);
+    //background(0);
     float[] data;
     myString = myPort.readStringUntil(lf);
     if (myString != null) {
@@ -94,8 +129,14 @@ void draw() {
       }
     }
   }
-  image(axes, 0, 0);
-  image(plot, xOff, 0);
+  strokeWeight(4);
+  stroke(255);
+  noFill();
+  rect(width-axes.width-10, height-axes.height-10, axes.width, axes.height);
+  image(axes, width-axes.width-10, height-axes.height-10);
+  noStroke();
+  image(plot, width-axes.width+xOff-10, height-axes.height-10);
+  text(frameRate, 20, 20);
 }
 
 void drawPlot(float[] data) {
@@ -116,8 +157,8 @@ void drawPlot(float[] data) {
     float val = map(data[i], 0, dataMax, 0, plot.height);
     plot.pushMatrix();
     plot.translate(xTrans, 0);
-    int baseCurve = 5;
-    int peakCurve = 7;
+    int baseCurve = 2;
+    int peakCurve = 4;
     plot.fill(colors[i]);
     plot.beginShape();
     plot.vertex(-barWidth/2-baseCurve, 0);
@@ -131,7 +172,7 @@ void drawPlot(float[] data) {
   plot.popMatrix();
   plot.endDraw();
 }
-void drawAxes(PGraphics buffer){
+void drawAxes(PGraphics buffer) {
   buffer.beginDraw();
   buffer.clear();
   buffer.background(0);
@@ -141,19 +182,29 @@ void drawAxes(PGraphics buffer){
   buffer.endDraw();
 }
 void drawYAxis(PGraphics buffer) {
-  buffer.textAlign(RIGHT, TOP);
+  buffer.pushMatrix();
+  buffer.translate(0, buffer.height/2);
+  buffer.textSize(12);
+  buffer.rotate(-.5*PI);
+  buffer.text("Irradiance (μW/cm2)", 0, 10);
+  buffer.popMatrix();
+
   buffer.stroke(255);
   buffer.fill(255);
   buffer.strokeWeight(2);
   buffer.pushMatrix();
   //buffer.translate(xOff, 0);
-  buffer.line(xOff, 0, xOff, buffer.height-yOff);
+  buffer.textSize(16);
+  buffer.textAlign(CENTER, CENTER);
+  buffer.text("Spectrum Graph", buffer.width/2, 10);
+  buffer.textAlign(RIGHT, CENTER);
+  buffer.line(xOff, 20, xOff, buffer.height-yOff);
+  buffer.textSize(8);
   buffer.strokeWeight(.5);
   int interval = 50;
-  if(dataMax>500){
+  if (dataMax>500) {
     interval = 100;
-  }
-  else if(dataMax > 1000){
+  } else if (dataMax > 1000) {
     interval = 250;
   }
   for (int i = 0; i < dataMax; i+=interval) {
@@ -162,20 +213,21 @@ void drawYAxis(PGraphics buffer) {
     buffer.translate(xOff, tickHeight);
     buffer.line(0, 0, plot.width, 0);
     String val = str(i);
-    buffer.text(val, 0, -10);   
+    buffer.text(val, -10, 0);   
     buffer.popMatrix();
   }
-
-
   buffer.popMatrix();
 }
 void drawXAxis(PGraphics buffer) {
-  buffer.textAlign(CENTER, BOTTOM);
+  buffer.textAlign(CENTER, CENTER);
+  buffer.textSize(12);
   buffer.stroke(255);
   buffer.fill(255);
   buffer.strokeWeight(2);
   buffer.pushMatrix();
   buffer.translate(xOff, buffer.height-yOff);
+  buffer.text("Wavelength (nanometers)", buffer.width/2-xOff, 40);
+  buffer.textSize(8);
   buffer.line(0, 0, plot.width, 0);
   //buffer.translate(barWidth/2, 0);
   for (int i = 0; i < wavelengths.length; i++) {
@@ -183,7 +235,11 @@ void drawXAxis(PGraphics buffer) {
     int xTrans = int(map(float(wavelengths[i]), 410, 940, barWidth/2, plot.width-barWidth/2));
     buffer.translate(xTrans, 0);
     String lambda = str(wavelengths[i]);
-    buffer.text(lambda, 0, 20);
+    buffer.pushMatrix();
+    buffer.translate(0, 15);
+    buffer.rotate(.5*PI);
+    buffer.text(lambda, 0, 0);
+    buffer.popMatrix();
     buffer.strokeWeight(2);
     buffer.line(0, 0, 0, 5);
     buffer.popMatrix();
