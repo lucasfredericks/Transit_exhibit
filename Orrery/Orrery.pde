@@ -15,7 +15,7 @@ Serial myPort;  // The serial port
 
 void setup() {
   //size(1280, 720);
-  frameRate(30);
+  frameRate(12);
   fullScreen();
   smooth(4);
   initCamera();
@@ -76,7 +76,7 @@ void draw() {
   rectMode(CENTER);
   rect(graphWidth/2, height/2 - graphHeight/2, graphWidth, graphHeight);
   rect(graphWidth/2, height/2 + graphHeight/2, graphWidth, graphHeight);
-  text(frameRate, 20, 20);
+  //text(frameRate, 20, 20);
 }
 
 void initCamera() {
