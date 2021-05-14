@@ -22,4 +22,4 @@
 *.zip
 
 # Ignore the build directory
-/dist
+/transit_graph/dist
