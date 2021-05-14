@@ -52,7 +52,7 @@ class Graph {
     graph.pushMatrix();
     graph.translate(leftOffset/3, graph.height/2);
     graph.textAlign(CENTER, CENTER);
-    graph.textSize(12);
+    graph.textSize(16);
     graph.rotate(-.5*PI);
     graph.text(label, 0, 10);
     graph.popMatrix();

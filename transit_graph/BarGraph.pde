@@ -27,7 +27,7 @@ class BarGraph extends Graph {
 
     drawXAxis();
     drawYAxis();
-    super.labelGraph("Spectrum Graph");
+    super.labelGraph("Irradiance by Wavelength");
     drawPlot();
     graph.endDraw();
   }
@@ -70,7 +70,7 @@ class BarGraph extends Graph {
     //    graph.popMatrix();
 
     //draw y axis
-    graph.textSize(8);
+    graph.textSize(12);
     graph.strokeWeight(.5);
     int interval = 50;
     if (dataMax>500) {

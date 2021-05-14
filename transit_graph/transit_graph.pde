@@ -5,8 +5,8 @@ Capture cam;
 
 BarGraph barGraph;
 LineGraph lineGraph;
-int graphWidth = 640;
-int graphHeight = 540;
+int graphWidth = 420;
+int graphHeight = 360;
 
 int lf = 10;    // Linefeed in ASCII
 String myString = null;
@@ -89,7 +89,7 @@ void initCamera() {
   } else {
     println("Available cameras:");
     printArray(cameras);
-    cam = new Capture(this, 1280, 1080, cameras[0]);
+    cam = new Capture(this, 860, 720, cameras[0]);
     cam.start();
   }
 }

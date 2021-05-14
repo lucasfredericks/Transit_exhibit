@@ -4,10 +4,11 @@ class LineGraph extends Graph {
   float[][] dataHistory;
   int indexPosition = 0;
   int history;
+  int hDiv = 8; //increase this integer to reduce historical memory (scroll faster)
 
   LineGraph(int graphWidth_, int graphHeight_) {
     super(graphWidth_, graphHeight_);
-    history = plotWidth/4;
+    history = plotWidth/hDiv;
     dataHistory = new float[18][history];
   }
 
@@ -46,7 +47,7 @@ class LineGraph extends Graph {
         int lastPos = (indexPosition + j-1)% history;
         float val = normToAxis(dataHistory[i][pos]);
         float lastVal = normToAxis(dataHistory[i][lastPos]);
-        graph.line(4*j,lastVal, 4*(j+1), val); 
+        graph.line(hDiv*j,lastVal, hDiv*(j+1), val); 
       }
     }
     graph.popMatrix();
@@ -92,7 +93,7 @@ class LineGraph extends Graph {
     graph.popMatrix();
   }
   void drawXAxis() {
-    super.labelXAxis("time");
+    //super.labelXAxis("time");
     graph.pushMatrix();
     graph.translate(leftOffset, graph.height - bottomOffset);
     graph.line(0, 0, plotWidth, 0);
